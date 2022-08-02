@@ -27,7 +27,7 @@ def multi_constructor(loader, tag_suffix, node):
     """
 
     if tag_suffix not in UNCONVERTED_SUFFIXES:
-        tag_suffix = "{}{}".format(FN_PREFIX, tag_suffix)
+        tag_suffix = f"{FN_PREFIX}{tag_suffix}"
 
     constructor = None
 
@@ -40,7 +40,7 @@ def multi_constructor(loader, tag_suffix, node):
     elif isinstance(node, yaml.MappingNode):
         constructor = loader.construct_mapping
     else:
-        raise Exception("Bad tag: !{}".format(tag_suffix))
+        raise Exception(f"Bad tag: !{tag_suffix}")
 
     return ODict((
         (tag_suffix, constructor(node)),
@@ -57,7 +57,7 @@ def construct_getatt(node):
     elif isinstance(node.value, list):
         return [s.value for s in node.value]
     else:
-        raise ValueError("Unexpected node type: {}".format(type(node.value)))
+        raise ValueError(f"Unexpected node type: {type(node.value)}")
 
 
 def construct_mapping(self, node, deep=False):

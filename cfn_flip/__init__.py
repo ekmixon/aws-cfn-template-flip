@@ -87,7 +87,7 @@ def flip(template, in_format=None, out_format=None, clean_up=False, no_flip=Fals
         # Load the template as JSON?
         if (out_format == "json" and no_flip) or (out_format == "yaml" and not no_flip):
             in_format = "json"
-        elif (out_format == "yaml" and no_flip) or (out_format == "json" and not no_flip):
+        elif out_format in ["yaml", "json"]:
             in_format = "yaml"
 
     # Load the data

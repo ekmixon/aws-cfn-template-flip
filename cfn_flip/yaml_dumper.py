@@ -61,7 +61,7 @@ def literal_unicode_representer(dumper, value):
 
 
 def string_representer(dumper, value):
-    if sum(1 for nl in value if nl in ('\n', '\r')) >= STR_MAX_LINES_QUOTED:
+    if sum(nl in ('\n', '\r') for nl in value) >= STR_MAX_LINES_QUOTED:
         return dumper.represent_scalar(TAG_STR, value, style="|")
 
     if len(value) >= STR_MAX_LENGTH_QUOTED and '\n' not in value:
@@ -74,7 +74,7 @@ def string_representer(dumper, value):
 
 
 def fn_representer(dumper, fn_name, value):
-    tag = "!{}".format(fn_name)
+    tag = f"!{fn_name}"
 
     if tag == "!GetAtt" and isinstance(value, list):
         value = ".".join(value)
@@ -117,12 +117,5 @@ CleanDumper.add_representer(ODict, map_representer)
 
 def get_dumper(clean_up=False, long_form=False):
     if clean_up:
-        if long_form:
-            return LongCleanDumper
-
-        return CleanDumper
-
-    if long_form:
-        return LongDumper
-
-    return Dumper
+        return LongCleanDumper if long_form else CleanDumper
+    return LongDumper if long_form else Dumper

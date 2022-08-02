@@ -88,12 +88,12 @@ class _Config:
     @staticmethod
     def _apply_type(name: str, value: Any, dtype: Type, nullable: bool) -> Any:
         if _Config._is_null(value=value) is True:
-            if nullable is True:
+            if nullable:
                 return None
             ValueError(
                 f"{name} configuration does not accept null value." f" Please pass {dtype}."
             )
-        if isinstance(value, dtype) is False:
+        if not isinstance(value, dtype):
             value = dtype(value)
         return value
 
@@ -101,9 +101,7 @@ class _Config:
     def _is_null(value: Any) -> bool:
         if value is None:
             return True
-        if (isinstance(value, str) is True) and (value.lower() in ("none", "null", "nil")):
-            return True
-        return False
+        return isinstance(value, str) and value.lower() in ("none", "null", "nil")
 
 
 def apply_configs(function):

@@ -52,21 +52,18 @@ class CfnYamlDumper(yaml.Dumper, CfnEmitter):
         if re.match(AWS_ACCOUNT_ID, value):
             style = "\'"
 
-        if isinstance(value, six.text_type):
-            if any(eol in value for eol in "\n\r") and style is None:
-                style = "\""
-
-            # return super(CfnYamlDumper, self).represent_scalar(TAG_STRING, value, style)
+        if (
+            isinstance(value, six.text_type)
+            and any(eol in value for eol in "\n\r")
+            and style is None
+        ):
+            style = "\""
 
         return super(CfnYamlDumper, self).represent_scalar(tag, value, style)
 
 
 def string_representer(dumper, value):
-    style = None
-
-    if "\n" in value:
-        style = "\""
-
+    style = "\"" if "\n" in value else None
     return dumper.represent_scalar(TAG_STRING, value, style=style)
 
 

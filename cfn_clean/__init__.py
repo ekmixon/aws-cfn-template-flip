@@ -25,9 +25,9 @@ UNCONVERTED_KEYS = [
 
 
 def has_intrinsic_functions(parameter):
-    intrinsic_functions = ["Fn::Sub", "!Sub", "!GetAtt"]
     result = False
     if isinstance(parameter, (list, tuple, dict, KeysView)):
+        intrinsic_functions = ["Fn::Sub", "!Sub", "!GetAtt"]
         for item in parameter:
             if item in intrinsic_functions:
                 result = True
@@ -74,17 +74,20 @@ def convert_join(value):
             else:
                 for key, val in args.items():
                     # we want to bail if a conditional can evaluate to AWS::NoValue
-                    if isinstance(val, dict):
-                        if "Fn::If" in val and "AWS::NoValue" in str(val["Fn::If"]):
-                            return {
-                                "Fn::Join": value,
-                            }
+                    if (
+                        isinstance(val, dict)
+                        and "Fn::If" in val
+                        and "AWS::NoValue" in str(val["Fn::If"])
+                    ):
+                        return {
+                            "Fn::Join": value,
+                        }
 
                     if val == part:
                         param_name = key
                         break
                 else:
-                    param_name = "Param{}".format(len(args) + 1)
+                    param_name = f"Param{len(args) + 1}"
                     args[param_name] = part
 
                 new_parts.append("${{{}}}".format(param_name))
@@ -144,17 +147,20 @@ def cfn_literal_parser(source):
         for key, value in source.items():
             if key == "Type":
                 for item in UNCONVERTED_KEYS:
-                    if value == item[0]:
-                        # Checking if this resource has "Properties" and the property literal to maintain
-                        # Better check than just try/except KeyError :-)
-                        if source.get("Properties") and source.get("Properties", {}).get(item[1]):
-                            if isinstance(source["Properties"][item[1]], dict) and \
-                                    not has_intrinsic_functions(source["Properties"][item[1]].keys()):
-                                source["Properties"][item[1]] = LiteralString(u"{}".format(json.dumps(
-                                    source["Properties"][item[1]],
-                                    indent=2,
-                                    separators=(',', ': '))
-                                ))
+                    if (
+                        value == item[0]
+                        and source.get("Properties")
+                        and source.get("Properties", {}).get(item[1])
+                        and isinstance(source["Properties"][item[1]], dict)
+                        and not has_intrinsic_functions(
+                            source["Properties"][item[1]].keys()
+                        )
+                    ):
+                        source["Properties"][item[1]] = LiteralString(u"{}".format(json.dumps(
+                            source["Properties"][item[1]],
+                            indent=2,
+                            separators=(',', ': '))
+                        ))
 
             else:
                 source[key] = cfn_literal_parser(value)

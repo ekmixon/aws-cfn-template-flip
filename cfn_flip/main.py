@@ -63,4 +63,4 @@ def main(ctx, **kwargs):
         )
         output_file.write(flipped)
     except Exception as e:
-        raise click.ClickException("{}".format(e))
+        raise click.ClickException(f"{e}")

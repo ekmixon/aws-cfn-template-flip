@@ -605,7 +605,7 @@ def test_unconverted_types():
             fn: "something"
         })
 
-        expected = "{} 'something'\n".format(tag)
+        expected = f"{tag} 'something'\n"
 
         assert cfn_flip.to_yaml(value) == expected
 
